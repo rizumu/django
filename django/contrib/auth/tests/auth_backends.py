@@ -4,7 +4,7 @@ from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission, AnonymousUser
 from django.contrib.auth.tests.utils import skipIfCustomUser
-from django.contrib.auth.tests.custom_user import ExtensionUser
+from django.contrib.auth.tests.custom_user import CustomUser, ExtensionUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
@@ -33,7 +33,10 @@ class BaseModelBackendTest(object):
         ContentType.objects.clear_cache()
 
     def test_has_perm(self):
-        user = self.UserModel.objects.get(username='test')
+        if self.UserModel.__name__ == "CustomUser":
+            user = self.UserModel.objects.get(email='test@example.com')
+        else:
+            user = self.UserModel.objects.get(username='test')
         self.assertEqual(user.has_perm('auth.test'), False)
         user.is_staff = True
         user.save()
@@ -52,7 +55,10 @@ class BaseModelBackendTest(object):
         self.assertEqual(user.has_perm('auth.test'), False)
 
     def test_custom_perms(self):
-        user = self.UserModel.objects.get(username='test')
+        if self.UserModel.__name__ == "CustomUser":
+            user = self.UserModel.objects.get(email='test@example.com')
+        else:
+            user = self.UserModel.objects.get(username='test')
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(name='test', content_type=content_type, codename='test')
         user.user_permissions.add(perm)
@@ -92,7 +98,10 @@ class BaseModelBackendTest(object):
 
     def test_has_no_object_perm(self):
         """Regressiontest for #12462"""
-        user = self.UserModel.objects.get(username='test')
+        if self.UserModel.__name__ == "CustomUser":
+            user = self.UserModel.objects.get(email='test@example.com')
+        else:
+            user = self.UserModel.objects.get(username='test')
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(name='test', content_type=content_type, codename='test')
         user.user_permissions.add(perm)
@@ -162,6 +171,30 @@ class ExtensionUserModelBackendTest(BaseModelBackendTest, TestCase):
             password='test',
             date_of_birth=date(1976, 11, 8)
         )
+
+
+@override_settings(AUTH_USER_MODEL='auth.CustomUser')
+class CustomUserModelBackendTest(BaseModelBackendTest, TestCase):
+    """
+    Tests for the ModelBackend using the custom CustomUser model.
+    """
+
+    UserModel = CustomUser
+
+    def create_users(self):
+        CustomUser.objects.create_user(
+            email='test@example.com',
+            date_of_birth=date(2006, 4, 25),
+            password='test'
+        )
+        CustomUser.objects.create_superuser(
+            username='test2',
+            password='test',
+            date_of_birth=date(1976, 11, 8)
+        )
+
+    def test_contenttypes_created(self):
+        pass
 
 
 class TestObj(object):
