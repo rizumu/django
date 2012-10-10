@@ -18,6 +18,7 @@ def update_contenttypes(app, created_models, verbosity=2, **kwargs):
     app_models = dict(
         (model._meta.object_name.lower(), model)
         for model in app_models
+        if not model._meta.swapped
     )
     # Get all the content types
     content_types = dict(
