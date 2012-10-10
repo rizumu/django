@@ -65,7 +65,10 @@ class BaseModelBackendTest(object):
         user.save()
 
         # reloading user to purge the _perm_cache
-        user = self.UserModel.objects.get(username='test')
+        if self.UserModel.__name__ == "CustomUser":
+            user = self.UserModel.objects.get(email='test@example.com')
+        else:
+            user = self.UserModel.objects.get(username='test')
         self.assertEqual(user.get_all_permissions() == set(['auth.test']), True)
         self.assertEqual(user.get_group_permissions(), set([]))
         self.assertEqual(user.has_module_perms('Group'), False)
@@ -114,7 +117,10 @@ class BaseModelBackendTest(object):
 
     def test_get_all_superuser_permissions(self):
         "A superuser has all permissions. Refs #14795"
-        user = self.UserModel.objects.get(username='test2')
+        if self.UserModel.__name__ == "CustomUser":
+            user = self.UserModel.objects.get(email='test2@example.com')
+        else:
+            user = self.UserModel.objects.get(username='test2')
         self.assertEqual(len(user.get_all_permissions()), len(Permission.objects.all()))
 
 
@@ -184,11 +190,12 @@ class CustomUserModelBackendTest(BaseModelBackendTest, TestCase):
     def create_users(self):
         CustomUser.objects.create_user(
             email='test@example.com',
-            date_of_birth=date(2006, 4, 25),
-            password='test'
+            password='test',
+            date_of_birth=date(2006, 4, 25)
         )
+        # createsuperuser bug: https://code.djangoproject.com/ticket/19067
         CustomUser.objects.create_superuser(
-            username='test2',
+            username='test2@example.com',
             password='test',
             date_of_birth=date(1976, 11, 8)
         )
