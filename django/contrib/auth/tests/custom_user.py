@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, AbstractUser, UserManager
+from django.contrib.auth.models import (
+    BaseUserManager, AbstractBaseUser, AbstractUser, Permission, UserManager)
 
 
 # The custom User uses email as the unique identifier, and requires
@@ -37,6 +38,10 @@ class CustomUser(AbstractBaseUser):
     date_of_birth = models.DateField()
 
     objects = CustomUserManager()
+
+    user_permissions = models.ManyToManyField(Permission,
+        verbose_name='user permissions', blank=True,
+        help_text='Specific permissions for this user.')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['date_of_birth']
