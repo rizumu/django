@@ -4,9 +4,10 @@ from datetime import date
 from django.contrib.auth import models, management
 from django.contrib.auth.management import create_permissions
 from django.contrib.auth.management.commands import changepassword
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.contrib.auth.tests import CustomUser
 from django.contrib.auth.tests.utils import skipIfCustomUser
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -168,6 +169,26 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
         self.assertEqual(CustomUser.objects.count(), 0)
+
+
+class CustomUserModelTestCase(TestCase):
+
+    def tearDown(self):
+        ContentType.objects.clear_cache()
+
+    @override_settings(AUTH_USER_MODEL='auth.CustomUser')
+    def test_swappable_user_contenttypes(self):
+        apps_models = [(ct.app_label, ct.model)
+                       for ct in ContentType.objects.all()]
+        self.assertIn(('auth', 'customuser'), apps_models)
+        self.assertNotIn(('auth', 'user'), apps_models)
+
+    @override_settings(AUTH_USER_MODEL='auth.CustomUser')
+    def test_swappable_user_permissions(self):
+        apps_models = [(p.content_type.app_label, p.content_type.model)
+                       for p in Permission.objects.all()]
+        self.assertIn(('auth', 'customuser'), apps_models)
+        self.assertNotIn(('auth', 'user'), apps_models)
 
 
 class PermissionDuplicationTestCase(TestCase):
