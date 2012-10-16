@@ -171,20 +171,20 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         self.assertEqual(CustomUser.objects.count(), 0)
 
 
+@override_settings(AUTH_USER_MODEL='auth.CustomUser')
 class CustomUserModelTestCase(TestCase):
 
-    def tearDown(self):
-        ContentType.objects.clear_cache()
-
-    @override_settings(AUTH_USER_MODEL='auth.CustomUser')
     def test_swappable_user_contenttypes(self):
+        ContentType.objects.all().delete()
+        call_command("syncdb", verbosity=0)
         apps_models = [(ct.app_label, ct.model)
                        for ct in ContentType.objects.all()]
         self.assertIn(('auth', 'customuser'), apps_models)
         self.assertNotIn(('auth', 'user'), apps_models)
 
-    @override_settings(AUTH_USER_MODEL='auth.CustomUser')
     def test_swappable_user_permissions(self):
+        Permission.objects.all().delete()
+        call_command("syncdb", verbosity=0)
         apps_models = [(p.content_type.app_label, p.content_type.model)
                        for p in Permission.objects.all()]
         self.assertIn(('auth', 'customuser'), apps_models)
