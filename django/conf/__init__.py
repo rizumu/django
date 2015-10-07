@@ -46,6 +46,8 @@ class LazySettings(LazyObject):
     def __getattr__(self, name):
         if self._wrapped is empty:
             self._setup(name)
+        if name in ("MEDIA_URL", "STATIC_URL", "PIPELINE_URL"):
+            return getattr(self._wrapped, name).__repr__()
         return getattr(self._wrapped, name)
 
     def configure(self, default_settings=global_settings, **options):
