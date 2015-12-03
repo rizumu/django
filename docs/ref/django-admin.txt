@@ -11,19 +11,13 @@ This document outlines all it can do.
     ``django-admin.py``.
 
 In addition, ``manage.py`` is automatically created in each Django project.
-``manage.py`` is a thin wrapper around ``django-admin`` that takes care of
-several things for you before delegating to ``django-admin``:
+``manage.py`` does the same thing as ``django-admin`` but takes care of a few
+things for you:
 
 * It puts your project's package on ``sys.path``.
 
 * It sets the :envvar:`DJANGO_SETTINGS_MODULE` environment variable so that
   it points to your project's ``settings.py`` file.
-
-* It calls :func:`django.setup()` to initialize various internals of Django.
-
-.. versionadded:: 1.7
-
-    :func:`django.setup()` didn't exist in previous versions of Django.
 
 The ``django-admin`` script should be on your system path if you installed
 Django via its ``setup.py`` utility. If it's not on your path, you can find it
@@ -1823,6 +1817,7 @@ number of roles in which color is used:
 
 * ``error`` - A major error.
 * ``notice`` - A minor error.
+* ``warning`` - A warning.
 * ``sql_field`` - The name of a model field in SQL.
 * ``sql_coltype`` - The type of a model field in SQL.
 * ``sql_keyword`` - An SQL keyword.
@@ -1834,6 +1829,8 @@ number of roles in which color is used:
 * ``http_not_found`` - A 404 HTTP Not Found server response.
 * ``http_bad_request`` - A 4XX HTTP Bad Request server response other than 404.
 * ``http_server_error`` - A 5XX HTTP Server Error response.
+* ``migrate_heading`` - A heading in a migrations management command.
+* ``migrate_label`` - A migration name.
 
 Each of these roles can be assigned a specific foreground and
 background color, from the following list:

@@ -142,6 +142,18 @@ class TranslationTests(TestCase):
         self.assertNotEqual(s, s4)
 
     @skipUnless(six.PY2, "No more bytestring translations on PY3")
+    def test_bytestrings(self):
+        """gettext() returns a bytestring if input is bytestring."""
+
+        # Using repr() to check translated text and type
+        self.assertEqual(repr(gettext(b"Time")), repr(b"Time"))
+        self.assertEqual(repr(gettext("Time")), repr("Time"))
+
+        with translation.override('de', deactivate=True):
+            self.assertEqual(repr(gettext(b"Time")), repr(b"Zeit"))
+            self.assertEqual(repr(gettext("Time")), repr(b"Zeit"))
+
+    @skipUnless(six.PY2, "No more bytestring translations on PY3")
     def test_lazy_and_bytestrings(self):
         # On Python 2, (n)gettext_lazy should not transform a bytestring to unicode
         self.assertEqual(gettext_lazy(b"test").upper(), b"TEST")
@@ -914,6 +926,9 @@ class FormattingTests(TestCase):
                 template_as_hidden.render(context),
                 '<input id="id_date_added" name="date_added" type="hidden" value="31.12.2009 06:00:00" />; <input id="id_cents_paid" name="cents_paid" type="hidden" value="59,47" />'
             )
+
+    def test_format_arbitrary_settings(self):
+        self.assertEqual(get_format('DEBUG'), 'DEBUG')
 
 
 class MiscTests(TestCase):

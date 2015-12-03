@@ -638,8 +638,12 @@ Context processors
 
 Here's what each of the built-in processors does:
 
+.. currentmodule:: django.contrib.auth.context_processors
+
 django.contrib.auth.context_processors.auth
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: auth
 
 If this processor is enabled, every ``RequestContext`` will contain these
 variables:
@@ -656,6 +660,8 @@ variables:
 
 django.template.context_processors.debug
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: debug
 
 If this processor is enabled, every ``RequestContext`` will contain these two
 variables -- but only if your :setting:`DEBUG` setting is set to ``True`` and
