@@ -28,6 +28,11 @@ Python compatibility
 Django 1.8 requires Python 2.7, 3.2, 3.3, 3.4, or 3.5. We **highly recommend**
 and only officially support the latest release of each series.
 
+Django 1.8 is the first release to support Python 3.5.
+
+Due to the end of upstream support for Python 3.2 in February 2016, we won't
+test Django 1.8.x on Python 3.2 after the end of 2016.
+
 What's new in Django 1.8
 ========================
 
@@ -1565,6 +1570,19 @@ If you're passing a :class:`~django.template.Context` in ``context_instance``,
 pass a :class:`dict` in the ``context`` parameter instead. If you're passing a
 :class:`~django.template.RequestContext`, pass the request separately in the
 ``request`` parameter.
+
+If you're using ``context_instance=RequestContext(request))`` with
+``render_to_response()``, use :func:`django.shortcuts.render`, which always
+makes ``RequestContext`` available, instead. For example::
+
+    from django.shortcuts import render_to_response
+    from django.template import RequestContext
+    render_to_response('template.html', {...}, context_instance=RequestContext(request))
+
+becomes::
+
+    from django.shortcuts import render
+    render(request, 'template.html', {...})
 
 ``dirs`` argument of template-finding functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -14,7 +14,9 @@ from unittest import skipUnless
 from django.conf import settings
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import (
+    RequestFactory, SimpleTestCase, TestCase, override_settings,
+)
 from django.utils import six, translation
 from django.utils._os import upath
 from django.utils.formats import (
@@ -930,6 +932,11 @@ class FormattingTests(TestCase):
     def test_format_arbitrary_settings(self):
         self.assertEqual(get_format('DEBUG'), 'DEBUG')
 
+    def test_get_custom_format(self):
+        with self.settings(FORMAT_MODULE_PATH='i18n.other.locale'):
+            with translation.override('fr', deactivate=True):
+                self.assertEqual('d/m/Y CUSTOM', get_format('CUSTOM_DAY_FORMAT'))
+
 
 class MiscTests(TestCase):
 
@@ -1522,3 +1529,22 @@ class TranslationFilesMissing(TestCase):
         self.patchGettextFind()
         trans_real._translations = {}
         self.assertRaises(IOError, activate, 'en')
+
+
+class NonDjangoLanguageTests(SimpleTestCase):
+    """
+    A language non present in default Django languages can still be
+    installed/used by a Django project.
+    """
+    @override_settings(
+        USE_I18N=True,
+        LANGUAGES=[
+            ('en-us', 'English'),
+            ('xxx', 'Somelanguage'),
+        ],
+        LANGUAGE_CODE='xxx',
+        LOCALE_PATHS=[os.path.join(here, 'commands', 'locale')],
+    )
+    def test_non_django_language(self):
+        self.assertEqual(get_language(), 'xxx')
+        self.assertEqual(ugettext("year"), "reay")
